@@ -43,3 +43,6 @@ remove_forwarding "iptables" "PREROUTING" "IPv4" "32" "${from_address_ipv4-}" "i
 remove_forwarding "ip6tables" "PREROUTING" "IPv6" "128" "${from_address_ipv6-}" "incoming"
 remove_forwarding "iptables" "OUTPUT" "IPv4" "32" "${from_address_ipv4-}" "local"
 remove_forwarding "ip6tables" "OUTPUT" "IPv6" "128" "${from_address_ipv6-}" "local"
+
+# Remove DNAT first so taking down the exceptions cannot redirect Serve traffic.
+local-serve-forwarding remove || true

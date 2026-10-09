@@ -65,6 +65,13 @@ function setup_forwarding() {
   local to_address="${6}"
   local name="${7}"
 
+  if [[ "${chain}" == "OUTPUT" ]]; then
+    if ! local-serve-forwarding setup "${cmd}" "${from_address}"; then
+      bashio::log.warning "Skipping new local forwarding rules: unable to preserve access to Tailscale Serve (${ip_version})"
+      return 0
+    fi
+  fi
+
   if bashio::var.has_value "${from_address}" && bashio::var.has_value "${to_address}"; then
     bashio::log.info \
       "Forwarding ${name} tailnet connections directed to ${from_address} to the host's ${to_address} address (${ip_version})"
@@ -82,6 +89,7 @@ function setup_forwarding() {
 }
 
 if ! eval "bashio::api.supervisor GET /network/interface/default/info false &> /dev/null ${LOG_FD}> /dev/null"; then
+  local-serve-forwarding remove || true
   bashio::log.warning \
     "The host has no primary (default) interface, can't forward incoming tailnet connections to the host." \
     "Restart of the app is required after the issue is fixed!"
